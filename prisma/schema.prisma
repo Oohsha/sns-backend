@@ -6,12 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // 👈 "sqlite"에서 "postgresql"로 변경
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
+  id              String    @id @default(cuid())
   email           String    @unique
   password        String
   nickname        String    @unique
@@ -29,12 +29,12 @@ model User {
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   content   String
-  imageUrl  String? // 👈 이 부분이 수정되었습니다. 주석 해제 및 '?' 추가.
+  imageUrl  String?
 
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  Int
+  authorId  String   // Int -> String
 
   comments  Comment[]
   likes     Like[]
@@ -44,27 +44,27 @@ model Post {
 }
 
 model Comment {
-  id      Int    @id @default(autoincrement())
+  id      String @id @default(cuid())
   content String
 
   author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId Int
+  authorId String // Int -> String
 
   post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId Int
+  postId String // Int -> String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Like {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid())
 
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
+  userId String // Int -> String
 
   post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId Int
+  postId String // Int -> String
 
   createdAt DateTime @default(now())
 
@@ -72,13 +72,13 @@ model Like {
 }
 
 model Follow {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid())
 
   follower    User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
-  followerId  Int
+  followerId  String // Int -> String
 
   following   User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
-  followingId Int
+  followingId String // Int -> String
 
   createdAt DateTime @default(now())
 
