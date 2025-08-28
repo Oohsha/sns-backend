@@ -14,13 +14,20 @@ async function bootstrap() {
     }),
   );
 
-  // CORS 설정 수정
+  // CORS 설정: Vercel 서브도메인 및 지정 도메인 허용
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://sns-frontend-neon.vercel.app', // 여러분의 Vercel 도메인
-      'https://*.vercel.app' // 모든 Vercel 서브도메인 허용
-    ],
+    origin: (origin, callback) => {
+      const allowList = [
+        'http://localhost:3000',
+        'https://sns-frontend-azure.vercel.app',
+      ];
+      const vercelRegex = /^https:\/\/.*\.vercel\.app$/;
+
+      if (!origin || allowList.includes(origin) || vercelRegex.test(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
