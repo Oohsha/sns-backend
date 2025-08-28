@@ -1,25 +1,32 @@
 // src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common'; // 1. ValidationPipe import
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 2. ValidationPipe를 전역 파이프로 설정
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // DTO에 정의되지 않은 속성은 자동으로 제거
-      forbidNonWhitelisted: true, // DTO에 정의되지 않은 속성이 들어오면 에러 발생
-      transform: true, // 요청 데이터를 DTO 타입으로 변환
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 
+  // CORS 설정 수정
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: [
+      'http://localhost:3000',
+      'https://sns-frontend-neon.vercel.app', // 여러분의 Vercel 도메인
+      'https://*.vercel.app' // 모든 Vercel 서브도메인 허용
+    ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  await app.listen(3001);
+  const port = process.env.PORT || 3001;
+  await app.listen(port, '0.0.0.0'); // Railway에서는 0.0.0.0으로 바인딩
 }
 bootstrap();

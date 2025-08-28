@@ -19,11 +19,42 @@ export class PostController {
     return this.postService.createPost(user.id, createPostDto.content, file);
   }
 
+  // 공개 피드(로그인 없이) 목록 - 페이지네이션
+  @Get()
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.postService.findAllPosts(page, limit);
+  }
+
   @Get('feed')
   @UseGuards(AuthGuard())
   getFeed(@GetUser() user: User, @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number, @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number) {
     return this.postService.getFeed(user.id, page, limit);
   }
   
-  // ... (다른 엔드포인트들은 이미 올바르게 수정되어 있으므로 생략, 전체 코드에는 포함됩니다)
+  // 게시글 상세 조회
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.postService.findPostById(id);
+  }
+
+  // 게시글 수정
+  @Patch(':id')
+  @UseGuards(AuthGuard())
+  update(
+    @Param('id') id: string,
+    @GetUser() user: User,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
+    return this.postService.updatePost(id, user.id, updatePostDto.content);
+  }
+
+  // 게시글 삭제
+  @Delete(':id')
+  @UseGuards(AuthGuard())
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.postService.deletePost(id, user.id);
+  }
 }
